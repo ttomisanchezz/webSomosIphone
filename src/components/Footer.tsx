@@ -45,8 +45,8 @@ export function Footer() {
               </span>
             </a>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-slate-400">
-              iPhones premium seleccionados con atención personalizada, pago
-              seguro y envíos disponibles.
+              iPhones nuevos sellados y usados verificados, con atención
+              personalizada y entrega en mano en Neuquén.
             </p>
 
             <div className="mt-6 flex items-center gap-3">

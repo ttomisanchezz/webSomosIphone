@@ -12,6 +12,7 @@ import {
   ShieldIcon,
   TransferIcon,
   TruckIcon,
+  PinIcon,
   WhatsAppIcon,
 } from "@/components/icons";
 import { heroBullets, heroStats } from "@/data/content";
@@ -37,6 +38,7 @@ const BULLET_ICONS = {
   badge: BadgeIcon,
   lock: LockIcon,
   truck: TruckIcon,
+  pin: PinIcon,
   chat: ChatIcon,
 } as const;
 

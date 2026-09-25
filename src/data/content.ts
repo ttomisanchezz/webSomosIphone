@@ -142,9 +142,9 @@ export const benefits: Benefit[] = [
     text: "Usados, 3 meses. Sellados, 1 año. La cubrimos nosotros: fallas de funcionamiento y de sistema. No cubre golpes, caídas ni roturas.",
   },
   {
-    icon: "truck",
-    title: "Envíos a toda la provincia",
-    text: "Si estás fuera de la capital, coordinamos envío seguro a tu localidad.",
+    icon: "pin",
+    title: "Punto de encuentro",
+    text: "No hacemos envíos: nos encontramos en una estación de servicio de Neuquén, lo probás y recién ahí pagás.",
   },
   {
     icon: "bolt",
@@ -248,7 +248,11 @@ export const faqItems: FaqItem[] = [
   },
   {
     q: "¿Hacen envíos?",
-    a: "Sí. Entregamos en mano en Neuquén Capital y coordinamos envíos a toda la provincia.",
+    a: "No. La entrega es siempre en mano: nos encontramos en una estación de servicio de Neuquén que te quede cómoda, lo revisás, lo probás y recién ahí pagás.",
+  },
+  {
+    q: "¿Los sellados son liberados?",
+    a: "Sí. Son sellados de fábrica, liberados para cualquier compañía.",
   },
   {
     q: "¿Puedo reservar un equipo?",
@@ -306,14 +310,14 @@ export const marqueeItems: string[] = [
   "Garantía local",
   "Tomamos tu usado en parte de pago",
   "Atención por WhatsApp",
-  "Envíos a toda la provincia",
+  "Punto de encuentro en Neuquén",
 ];
 
 // ── Hero: bullets ────────────────────────────────────────────
 export interface HeroBullet {
   text: string;
   /** Icono del bullet (se resuelve en Hero.tsx). */
-  icon: "calendar" | "transfer" | "badge" | "lock" | "truck" | "chat";
+  icon: "calendar" | "transfer" | "badge" | "lock" | "truck" | "chat" | "pin";
 }
 
 export const heroBullets: HeroBullet[] = [
@@ -321,7 +325,7 @@ export const heroBullets: HeroBullet[] = [
   { text: "Tomamos tu equipo en parte de pago", icon: "transfer" },
   { text: "Equipos nuevos y seleccionados", icon: "badge" },
   { text: "Pago seguro", icon: "lock" },
-  { text: "Envíos disponibles", icon: "truck" },
+  { text: "Entrega en mano en Neuquén", icon: "pin" },
   { text: "Atención por WhatsApp", icon: "chat" },
 ];
 

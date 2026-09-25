@@ -1,13 +1,13 @@
 import type { CSSProperties } from "react";
 import { Button } from "@/components/ui";
 import {
-  ArrowRightIcon, BadgeIcon, CalendarIcon, ChatIcon, LockIcon, ShieldIcon, TransferIcon, TruckIcon, WhatsAppIcon,
+  ArrowRightIcon, BadgeIcon, CalendarIcon, ChatIcon, LockIcon, PinIcon, ShieldIcon, TransferIcon, TruckIcon, WhatsAppIcon,
 } from "@/components/icons";
 import { heroBullets, heroStats } from "@/data/content";
 import { waLink } from "@/data/site";
 
 /** Textos de la portada (mismo contenido que el Hero anterior), repartidos alrededor de Fran y Tomi. */
-const BULLET_ICONS = { calendar: CalendarIcon, transfer: TransferIcon, badge: BadgeIcon, lock: LockIcon, truck: TruckIcon, chat: ChatIcon } as const;
+const BULLET_ICONS = { calendar: CalendarIcon, transfer: TransferIcon, badge: BadgeIcon, lock: LockIcon, truck: TruckIcon, chat: ChatIcon, pin: PinIcon } as const;
 
 const NQN_GRADIENT: CSSProperties = {
   backgroundImage: "linear-gradient(180deg, var(--blue-light) 0%, var(--blue) 100%)", WebkitBackgroundClip: "text", backgroundClip: "text",

@@ -12,7 +12,7 @@ export const site = {
   whatsappDisplay: "+54 9 299 429-5806",
   whatsappMessage:
     "Hola somos iphone nqn 👋 Quería consultar por los iPhones disponibles en Neuquén.",
-  location: "Neuquén Capital · Entrega en mano y envíos a toda la provincia",
+  location: "Neuquén · Entrega en mano en punto de encuentro",
   address: "Showroom a coordinar · Neuquén Capital",
   social: {
     instagram: "https://instagram.com/somosiphone_nqn",
