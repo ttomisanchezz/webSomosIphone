@@ -43,6 +43,8 @@ const ENV_CUBEUV = envCubeUvUrl;
 export interface Engine {
   /** Baja, compila y cachea un modelo .glb (idempotente). */
   ensureModel: (url: string, priority: ModelPriority) => void;
+  /** Algo cambió en una vista (visible, color, scroll, arrastre): volver a dibujar. */
+  wake: () => void;
   dispose: () => void;
 }
 
@@ -145,6 +147,7 @@ export function createEngine(
 
   const markDirty = (url: string) => {
     for (const v of views.values()) if (v.modelKey === url) v.dirty = true;
+    wake();
   };
 
   /**
@@ -230,6 +233,7 @@ export function createEngine(
     v.targetRotY += dx * 0.006;
     v.targetRotX = Math.min(0.6, Math.max(-0.6, v.targetRotX + dy * 0.006));
     v.velX = dx * 0.006;
+    wake();
   };
   const onUp = () => {
     const v = activeDrag.current;
@@ -244,20 +248,39 @@ export function createEngine(
   window.addEventListener("pointercancel", onUp);
 
   const timer = new THREE.Timer();
+  // El loop se duerme cuando no hay nada que mover en pantalla. Antes pedía
+  // un frame en cada refresco aunque no hubiera ningún iPhone a la vista, y
+  // eso obligaba al navegador a recalcular estilos y componer la página
+  // entera 60 veces por segundo (en celular, ~la mitad del procesador).
   let raf = 0;
+  let timeout = 0;
   let sinceFrame = 0;
+  const wake = () => {
+    if (disposed || raf || timeout) return;
+    raf = requestAnimationFrame(animate);
+  };
+  // En celular (30 fps) el próximo frame se pide con un timeout: pedirlo
+  // en cada refresco y saltearlo igual hacía trabajar al navegador a 60.
+  const scheduleNext = (busy: boolean) => {
+    if (!busy || disposed) return;
+    if (throttle && !activeDrag.current) {
+      timeout = window.setTimeout(() => {
+        timeout = 0;
+        wake();
+      }, MOBILE_FRAME_S * 1000 - 4);
+    } else raf = requestAnimationFrame(animate);
+  };
   // Un tercio de la frecuencia del loop (10 fps en celular, 20 en desktop).
   const backgroundFrameS = (throttle ? MOBILE_FRAME_S : 1 / 60) * 3 * 0.9;
   const animate = () => {
-    raf = requestAnimationFrame(animate);
-    if (document.hidden) return;
+    raf = 0;
     timer.update();
     const frameDt = timer.getDelta();
     const t = timer.getElapsed();
+    // ¿Hay algo que siga moviéndose? Si no, el loop se duerme hasta wake().
+    let busy = !!activeDrag.current;
 
-    // En celulares, a 30 fps salvo mientras alguien arrastra un iPhone.
     sinceFrame += frameDt;
-    if (throttle && !activeDrag.current && sinceFrame < MOBILE_FRAME_S * 0.9) return;
     const dt = Math.min(sinceFrame, 0.05);
     sinceFrame = 0;
 
@@ -274,8 +297,10 @@ export function createEngine(
         !view.dragging &&
         !view.dirty &&
         t - view.lastDraw < backgroundFrameS
-      )
+      ) {
+        busy = true;
         continue;
+      }
       // El giro va por el tiempo desde el último dibujo de ESTA vista, así
       // gira igual de rápido aunque se dibuje menos seguido.
       const vdt = Math.min(t - view.lastDraw, view.background ? 0.15 : dt);
@@ -292,6 +317,7 @@ export function createEngine(
       // Vista quieta (card en celular, reduced motion): se dibuja solo cuando
       // algo cambia (color, scroll, modelo recién cargado, tamaño).
       if (!view.dirty && !easing && !floating && AUTO === 0) continue;
+      if (easing || floating || AUTO !== 0 || view.dragging) busy = true;
       view.dirty = false;
       view.lastDraw = t;
 
@@ -336,14 +362,17 @@ export function createEngine(
       // Fundido de entrada la primera vez que el modelo se ve.
       if (view.canvas.style.opacity !== "1") view.canvas.style.opacity = "1";
     }
+    scheduleNext(busy);
   };
-  animate();
+  wake();
 
   return {
     ensureModel,
+    wake,
     dispose() {
       disposed = true;
       cancelAnimationFrame(raf);
+      window.clearTimeout(timeout);
       timer.dispose();
       window.removeEventListener("load", scheduleIdle);
       window.removeEventListener("pointermove", onMove);

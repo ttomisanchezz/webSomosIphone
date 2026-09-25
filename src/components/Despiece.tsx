@@ -5,6 +5,7 @@ import { allowHeavy, getMotionPrefs } from "@/anim/motion";
 import { Button, Container, Eyebrow, Reveal } from "@/components/ui";
 import { WhatsAppIcon } from "@/components/icons";
 import { cn } from "@/utils/cn";
+import { slowNetwork } from "@/utils/network";
 import { waProduct } from "@/data/site";
 import {
   despieceDisclaimer,
@@ -84,9 +85,10 @@ export function Despiece() {
 
   // Sin WebGL no tiene sentido el recorrido largo: se decide al montar,
   // cuando la persona casi seguro está arriba de todo (sin saltos a la vista).
+  // Con conexión lenta o ahorro de datos, lo mismo: el modelo pesa 3,2 MB.
   useEffect(() => {
     if (getMotionPrefs().reduced) return;
-    if (!hasWebGL()) setMode("static");
+    if (slowNetwork() || !hasWebGL()) setMode("static");
   }, []);
 
   // Cambió el alto de la sección: recalcular los ScrollTrigger de abajo.

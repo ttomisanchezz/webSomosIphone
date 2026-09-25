@@ -1,3 +1,4 @@
+import { Suspense, type ReactNode } from "react";
 import { Background } from "@/components/ui";
 import { AnimationProvider } from "@/anim/AnimationProvider";
 import { PhoneStageProvider } from "@/three/PhoneStage";
@@ -28,19 +29,34 @@ export default function App() {
           <Background />
           <TopBar />
           <main>
-            <ScrollScene camaraPanel={<ProductCards />} cartelPanel={<PaymentSection />} />
-            <Benefits />
+            <ScrollScene
+              camaraPanel={<Tanda><ProductCards /></Tanda>}
+              cartelPanel={<Tanda><PaymentSection /></Tanda>}
+            />
+            <Tanda><Benefits /></Tanda>
             {/* Incluye el desarme del 14 Pro con el scroll (Despiece). */}
-            <PhoneDetail />
-            <Comparison />
-            <Process />
-            <FAQ />
-            <FinalCTA />
+            <Tanda><PhoneDetail /></Tanda>
+            <Tanda><Comparison /></Tanda>
+            <Tanda><Process /></Tanda>
+            <Tanda><FAQ /></Tanda>
+            <Tanda><FinalCTA /></Tanda>
           </main>
-          <Footer />
+          <Tanda><Footer /></Tanda>
           <FloatingActions />
         </div>
       </PhoneStageProvider>
     </AnimationProvider>
   );
+}
+
+/**
+ * Hidratación por tandas. El HTML llega pre-renderizado y React lo
+ * "engancha" al cargar: toda la página junta era una sola tarea de
+ * ~0,5 s en un celular de gama media, con la pantalla congelada justo
+ * después de aparecer. Cada Suspense se hidrata por separado y el
+ * navegador respira entre una sección y otra. No cambia nada visible
+ * (nada de adentro suspende).
+ */
+function Tanda({ children }: { children: ReactNode }) {
+  return <Suspense fallback={null}>{children}</Suspense>;
 }

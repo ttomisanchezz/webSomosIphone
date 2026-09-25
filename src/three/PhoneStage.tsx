@@ -10,6 +10,7 @@ import { cn } from "@/utils/cn";
 import { PhoneMockup } from "@/components/PhoneMockup";
 import { ScrollTrigger } from "@/anim/gsap";
 import { allowHeavy, getMotionPrefs } from "@/anim/motion";
+import { onFirstInteraction } from "@/utils/network";
 import type { Engine } from "@/three/engine";
 
 // Este archivo NO importa three.js: el motor (engine.ts) se baja aparte
@@ -198,7 +199,10 @@ export function PhoneStageProvider({ children }: { children: ReactNode }) {
           const w = Math.max(1, Math.round(r.width * dpr));
           const h = Math.max(1, Math.round(r.height * dpr));
           // Cambiar el tamaño borra el canvas: hay que redibujar.
-          if (canvas.width !== w || canvas.height !== h) view.dirty = true;
+          if (canvas.width !== w || canvas.height !== h) {
+            view.dirty = true;
+            engineRef.current?.wake();
+          }
           if (canvas.width !== w) canvas.width = w;
           if (canvas.height !== h) canvas.height = h;
         });
@@ -208,6 +212,7 @@ export function PhoneStageProvider({ children }: { children: ReactNode }) {
           (entries) => {
             for (const e of entries) {
               view.visible = e.isIntersecting;
+              engineRef.current?.wake();
               // El .glb se baja recien cuando la card se acerca. Antes se
               // descargaban los 11 modelos del catalogo (~6 MB) apenas
               // montaba la seccion, aunque estuviera lejos del fold.
@@ -226,6 +231,7 @@ export function PhoneStageProvider({ children }: { children: ReactNode }) {
             view.prevY = e.clientY;
             view.velX = 0;
             activeDragRef.current = view;
+            engineRef.current?.wake();
             try {
               canvas.setPointerCapture(e.pointerId);
             } catch {
@@ -260,6 +266,7 @@ export function PhoneStageProvider({ children }: { children: ReactNode }) {
         if (v && v.color !== color) {
           v.color = color;
           v.dirty = true;
+          engineRef.current?.wake();
         }
       },
       setScrollSpin(id, spin) {
@@ -267,6 +274,7 @@ export function PhoneStageProvider({ children }: { children: ReactNode }) {
         if (v) {
           v.scrollSpin = spin;
           v.dirty = true;
+          engineRef.current?.wake();
         }
       },
     };
@@ -277,34 +285,45 @@ export function PhoneStageProvider({ children }: { children: ReactNode }) {
   // primer pintado el texto del hero aparecía tarde. El chunk empieza a bajar
   // ya, en paralelo. Si no baja (red caída) o no hay WebGL, las vistas caen
   // al mockup SVG.
+  //
+  // En celular ni siquiera se pide el chunk (three.js, ~170 KB gzip) al
+  // abrir: los iPhones 3D aparecen recién después del primer zoom, así que
+  // se espera al primer toque o scroll. Sobra tiempo para que llegue.
   useEffect(() => {
     let cancelled = false;
-    const enginePromise = import("@/three/engine");
-    const fail = (err: unknown) => {
-      console.warn("[PhoneStage] no se pudo cargar el motor 3D:", err);
-      if (!cancelled) setReady(false);
-    };
-    enginePromise.catch(fail);
+    let stopWaiting = () => {};
+    const start = () => {
+      const enginePromise = import("@/three/engine");
+      const fail = (err: unknown) => {
+        console.warn("[PhoneStage] no se pudo cargar el motor 3D:", err);
+        if (!cancelled) setReady(false);
+      };
+      enginePromise.catch(fail);
 
-    const stopWaiting = afterFirstPaint(() => {
-      enginePromise
-        .then(({ createEngine }) => {
-          if (cancelled) return;
-          const engine = createEngine(viewsRef.current, activeDragRef);
-          if (!engine) {
-            setReady(false);
-            return;
-          }
-          engineRef.current = engine;
-          for (const [url, priority] of pendingRef.current) {
-            engine.ensureModel(url, priority);
-          }
-          pendingRef.current.clear();
-        })
-        .catch(() => {}); // ya lo reporta fail()
-    });
+      stopWaiting = afterFirstPaint(() => {
+        enginePromise
+          .then(({ createEngine }) => {
+            if (cancelled) return;
+            const engine = createEngine(viewsRef.current, activeDragRef);
+            if (!engine) {
+              setReady(false);
+              return;
+            }
+            engineRef.current = engine;
+            for (const [url, priority] of pendingRef.current) {
+              engine.ensureModel(url, priority);
+            }
+            pendingRef.current.clear();
+          })
+          .catch(() => {}); // ya lo reporta fail()
+      });
+    };
+    const stopFirstTouch = getMotionPrefs().isMobile
+      ? onFirstInteraction(() => { if (!cancelled) start(); })
+      : (start(), () => {});
     return () => {
       cancelled = true;
+      stopFirstTouch();
       stopWaiting();
       engineRef.current?.dispose();
       engineRef.current = null;

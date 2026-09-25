@@ -264,11 +264,11 @@ summary {
 }
 
 /* Utilities */
-/* Cards: grafito con borde fino, sin tinte. */
+/* Cards: grafito con borde fino, sin tinte. Sin backdrop-filter: con el
+   fondo opaco el desenfoque no se veía, pero el navegador lo recalculaba
+   en cada frame del scroll por cada card en pantalla (en celular, tirones). */
 .glass {
   background: var(--bg-card);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--card-border);
 }
 
@@ -429,9 +429,12 @@ html.lenis body {
    navegador los ubicaba todos antes del primer pintado. Solo en celular
    porque en desktop el pin de PhoneDetail y el parallax miden posiciones
    de toda la página. "auto" en el tamaño recuerda el alto real una vez
-   que la sección se mostró. */
+   que la sección se mostró. Los paneles de la escena del inicio (Modelos
+   y Formas de pago, [data-panel]) también: están varias pantallas abajo y
+   eran la mitad del cálculo antes de mostrar la portada. */
 @media (max-width: 1023px) {
   main > section:not(#inicio),
+  #inicio > [data-panel],
   body footer {
     content-visibility: auto;
     contain-intrinsic-size: auto 1000px;
@@ -455,3 +458,9 @@ html.lenis body {
 }
 .hero-float { animation: hero-float 4.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .hero-float { animation: none; } }
+
+/* Portada tapada por el video del zoom o fuera de pantalla (HeroStage). */
+.hero-paused .color-bends,
+.hero-paused .hero-float {
+  animation-play-state: paused;
+}

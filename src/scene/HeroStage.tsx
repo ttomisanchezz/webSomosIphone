@@ -3,7 +3,8 @@ import { allowMotion, getMotionPrefs } from "@/anim/motion";
 import type { Layer } from "./floatingPhones";
 import { ColorBends } from "@/components/ColorBends";
 import { HeroSides, HeroWordmark } from "./HeroCopy";
-import { loadSequence, pickVariant, SEQUENCES, type Variant } from "./frames";
+import { loadSequence, onAnyFrame, pickVariant, SEQUENCES, type Variant } from "./frames";
+import { afterLoadIdle, onFirstInteraction, slowNetwork } from "@/utils/network";
 
 type Focus = "camara" | "cartel";
 
@@ -44,9 +45,19 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
   const videoRef = useRef<HTMLCanvasElement>(null);
   const blackRef = useRef<HTMLDivElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const layers = useRef<Layer[]>([]);
   const frames = useRef<Partial<Record<Focus, HTMLImageElement[]>>>({});
   const lastFrame = useRef("");
+
+  // Escena tapada por el video del zoom o fuera de pantalla: las bandas del
+  // fondo y los beneficios flotantes dejan de animarse (en PC las bandas se
+  // repintan y desenfocan en cada frame).
+  const covered = useRef(false);
+  const offscreen = useRef(false);
+  const syncPaused = () => {
+    rootRef.current?.classList.toggle("hero-paused", covered.current || offscreen.current);
+  };
 
   // Caja de la imagen de los avatares, medida sin zoom (se recalcula al cambiar el tamaño).
   const imgBox = useRef<Box | null>(null);
@@ -60,7 +71,15 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
     imgBox.current = { x: ir.left - zr.left, y: ir.top - zr.top, w: ir.width, h: ir.height };
   };
 
+  // Último cuadro pedido: si todavía no había llegado, se redibuja cuando llega.
+  const wantedFrame = useRef<{ focus: Focus; i: number } | null>(null);
+
+  const ensureFrames = (f: Focus) => {
+    frames.current[f] ??= loadSequence(f, pickVariant(f));
+  };
+
   const drawFrame = (focus: Focus, i: number) => {
+    wantedFrame.current = { focus, i };
     const c = videoRef.current;
     const list = frames.current[focus];
     if (!c || !list) return;
@@ -91,6 +110,10 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
       const box = imgBox.current;
       if (!box) return;
       const W = zoom.offsetWidth, H = zoom.offsetHeight;
+      // Por si se llegó al zoom sin evento de scroll (link a un ancla, recarga
+      // a mitad de página); y los del cartel, a mitad del primer zoom.
+      if (z > 0) ensureFrames(focus);
+      if (focus === "camara" && z >= 0.5) ensureFrames("cartel");
       const variant = pickVariant(focus);
       const [cx, cy, cw, ch] = CROPS[focus][variant];
       // recorte del video en px del escenario
@@ -114,8 +137,10 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
         if (vOp > 0) {
           const t = Math.max(0, (z - HANDOFF) / (1 - HANDOFF));
           drawFrame(focus, Math.round(t * (SEQUENCES[focus].frames - 1)));
-        }
+        } else wantedFrame.current = null;
       }
+      covered.current = vOp >= 1;
+      syncPaused();
       const black = Math.min(1, Math.max(0, (z - 0.9) / 0.1));
       if (blackRef.current) blackRef.current.style.opacity = String(black);
       if (introRef.current) {
@@ -129,13 +154,31 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
   useEffect(() => {
     let cancelled = false;
     const mobile = getMotionPrefs().isMobile;
-    import("./floatingPhones").then(({ createLayer, BACK_SLOTS, FRONT_SLOTS }) => {
-      if (cancelled) return;
-      const b = backRef.current && createLayer(backRef.current, BACK_SLOTS, { mobile });
-      // En celular no hay capa delantera: taparía a Fran y Tomi en una pantalla angosta.
-      const f = !mobile && frontRef.current && createLayer(frontRef.current, FRONT_SLOTS, { mobile });
-      layers.current = [b, f].filter(Boolean) as Layer[];
-    });
+    // Crear el WebGL y calcular el reflejo traba el hilo principal: se hace
+    // cuando el navegador queda libre, no en medio de la hidratación.
+    const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 200));
+    // Con conexión lenta o ahorro de datos, la mitad de los equipos y sin capa delantera.
+    const slow = slowNetwork();
+    const startLayers = () => {
+      // El import trae three.js (~170 KB gzip): en celular se pide recién acá.
+      const layersModule = import("./floatingPhones");
+      ric(() => {
+        layersModule.then(({ createLayer, BACK_SLOTS, FRONT_SLOTS }) => {
+          if (cancelled) return;
+          const back = slow ? BACK_SLOTS.slice(0, 4) : BACK_SLOTS;
+          const b = backRef.current && createLayer(backRef.current, back, { mobile });
+          // En celular no hay capa delantera: taparía a Fran y Tomi en una pantalla angosta.
+          const f = !mobile && !slow && frontRef.current && createLayer(frontRef.current, FRONT_SLOTS, { mobile });
+          layers.current = [b, f].filter(Boolean) as Layer[];
+        });
+      }, { timeout: 1500 });
+    };
+    // En celular los iPhones 3D (three.js + modelos) no bajan al abrir la
+    // página: recién con el primer toque o scroll. Quien entra y se va sin
+    // tocar nada no gasta datos ni batería en eso, y la portada sale antes.
+    let stopFirstTouch = () => {};
+    if (mobile) stopFirstTouch = onFirstInteraction(() => { if (!cancelled) startLayers(); });
+    else startLayers();
     const onMove = (e: PointerEvent) => {
       if (!allowMotion()) return;
       const x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -153,23 +196,53 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
       lastFrame.current = "";
     };
     sizeVideo();
-    const preload = window.setTimeout(() => {
-      for (const f of ["camara", "cartel"] as Focus[]) frames.current[f] = loadSequence(f, pickVariant(f));
-    }, 1200);
+    // Los cuadros del zoom a la cámara arrancan con el primer scroll. En PC,
+    // además, cuando la página terminó de cargar (junto con los del cartel).
+    // En celular no: son ~2 MB de datos móviles que quien no scrollea nunca
+    // ve; los del cartel se piden desde setZoom, a mitad del primer zoom.
+    const startFrames = () => {
+      window.removeEventListener("scroll", startFrames);
+      ensureFrames("camara");
+    };
+    window.addEventListener("scroll", startFrames, { passive: true });
+    const cancelIdle = mobile || slowNetwork() ? () => {} : afterLoadIdle(() => {
+      startFrames();
+      ensureFrames("cartel");
+    });
+    let redraw = 0;
+    const stopListening = onAnyFrame(() => {
+      if (redraw || !wantedFrame.current) return;
+      redraw = requestAnimationFrame(() => {
+        redraw = 0;
+        const w = wantedFrame.current;
+        if (w) drawFrame(w.focus, w.i);
+      });
+    });
+    // Escena fuera de pantalla: se pausan las animaciones CSS del fondo.
+    const io = new IntersectionObserver(([e]) => {
+      offscreen.current = !e.isIntersecting;
+      syncPaused();
+    });
+    if (rootRef.current) io.observe(rootRef.current);
     const onResize = () => { imgBox.current = null; sizeVideo(); };
     window.addEventListener("resize", onResize);
     return () => {
       cancelled = true;
+      stopFirstTouch();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("resize", onResize);
-      window.clearTimeout(preload);
+      window.removeEventListener("scroll", startFrames);
+      cancelIdle();
+      stopListening();
+      cancelAnimationFrame(redraw);
+      io.disconnect();
       layers.current.forEach((l) => l.dispose());
       layers.current = [];
     };
   }, []);
 
   return (
-    <div className="relative h-dvh w-full overflow-hidden bg-ink-950">
+    <div ref={rootRef} className="relative h-dvh w-full overflow-hidden bg-ink-950">
       <div ref={zoomRef} className="absolute inset-0 will-change-transform">
         {/* Fondo: los colores en movimiento del home anterior */}
         <ColorBends />
@@ -178,17 +251,23 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
         {/* Fran y Tomi en el centro */}
         <div className="absolute bottom-[27svh] left-1/2 h-[min(52svh,calc(73svh-180px))] w-full -translate-x-1/2 lg:bottom-0 lg:h-[74svh] lg:w-[46vw]">
           <div className="absolute bottom-[8%] left-1/2 h-[70%] w-[90%] -translate-x-1/2 rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, rgba(196,196,196,.16), transparent)" }} />
-          <img
-            ref={imgRef}
-            src={DUO.src}
-            width={DUO.width}
-            height={DUO.height}
-            alt="Avatares 3D de Tomi y Fran de Somos iPhone NQN: Tomi con un cartel que dice Aceptamos cuotas y Fran mostrando un iPhone"
-            fetchPriority="high"
-            className="absolute bottom-0 left-1/2 h-full w-auto max-w-none -translate-x-1/2 select-none object-contain"
-            style={{ maskImage: "linear-gradient(to top, transparent 0%, black 12%)", WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 12%)", filter: "drop-shadow(0 0 24px rgba(196,196,196,.28)) drop-shadow(0 0 2px rgba(255,255,255,.35))" }}
-            draggable={false}
-          />
+          {/* El brillo del contorno va en este contenedor y el fundido de los
+              pies en la imagen. Con los dos en la imagen, la máscara recortaba
+              el brillo en los bordes de la foto y se veía un rectángulo gris
+              detrás de ellos. */}
+          <div className="absolute inset-0" style={{ filter: "drop-shadow(0 0 24px rgba(196,196,196,.28)) drop-shadow(0 0 2px rgba(255,255,255,.35))" }}>
+            <img
+              ref={imgRef}
+              src={DUO.src}
+              width={DUO.width}
+              height={DUO.height}
+              alt="Avatares 3D de Tomi y Fran de Somos iPhone NQN: Tomi con un cartel que dice Aceptamos cuotas y Fran mostrando un iPhone"
+              fetchPriority="high"
+              className="absolute bottom-0 left-1/2 h-full w-auto max-w-none -translate-x-1/2 select-none object-contain"
+              style={{ maskImage: "linear-gradient(to top, transparent 0%, black 12%)", WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 12%)" }}
+              draggable={false}
+            />
+          </div>
         </div>
         <canvas ref={frontRef} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true" />
       </div>

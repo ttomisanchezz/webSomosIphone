@@ -72,9 +72,10 @@ export function ScrollScene({ camaraPanel, cartelPanel }: ScrollSceneProps) {
         <HeroStage ref={stage} />
       </div>
       <div ref={a} aria-hidden="true" style={{ height: "200vh" }} />
-      <div className="relative z-10 bg-ink-950">{camaraPanel}</div>
+      {/* data-panel: en celular se pintan recién al acercarse (index.css). */}
+      <div data-panel className="relative z-10 bg-ink-950">{camaraPanel}</div>
       <div ref={b} aria-hidden="true" style={{ height: "250vh" }} />
-      <div className="relative z-10 bg-ink-950">{cartelPanel}</div>
+      <div data-panel className="relative z-10 bg-ink-950">{cartelPanel}</div>
       <div ref={c} aria-hidden="true" style={{ height: "150vh" }} />
     </div>
   );
