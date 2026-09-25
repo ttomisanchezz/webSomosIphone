@@ -1,0 +1,9 @@
+# No subir a Vercel el material de trabajo (fotos, videos, backups pesados)
+fotos-referencia
+deliverables
+glb-originals-backup
+imagenes14prodesarmado
+Claude outputs
+dist
+.ssr
+node_modules
