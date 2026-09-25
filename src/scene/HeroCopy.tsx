@@ -37,7 +37,7 @@ export function HeroSides() {
     <>
       {/* Izquierda: badge, titular y botón */}
       <div className="absolute bottom-[4svh] left-4 right-4 flex flex-col lg:bottom-[12svh] lg:left-12 lg:right-auto lg:max-w-[23vw] xl:left-20">
-        <span className="hidden w-fit items-center gap-2 rounded-full border border-[var(--blue)]/60 bg-[var(--blue)]/20 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--blue-light)] shadow-[0_0_24px_rgba(46,123,255,.35)] backdrop-blur-md lg:inline-flex">
+        <span className="hidden w-fit items-center gap-2 rounded-full border border-[var(--blue)]/70 bg-[var(--blue)]/35 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-white shadow-[0_0_24px_rgba(46,123,255,.35)] backdrop-blur-md lg:inline-flex">
           <ShieldIcon className="h-4 w-4 shrink-0 text-[var(--blue-light)]" />
           Equipos sellados y verificados
         </span>
