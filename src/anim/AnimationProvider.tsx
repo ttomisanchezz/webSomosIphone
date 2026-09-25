@@ -38,6 +38,38 @@ export function AnimationProvider({ children }: { children: ReactNode }) {
         l.scrollTo(target as HTMLElement, { offset: -96, duration: 1.2 });
       };
       document.addEventListener("click", onAnchorClick);
+    } else {
+      // Celular (y equipos lentos): sin Lenis. Las secciones de abajo usan
+      // content-visibility (index.css) y miden 1000 px estimados hasta que se
+      // pintan, así que el scroll suave del navegador calculaba mal el destino
+      // y el menú dejaba a la persona miles de px antes. Se salta directo y se
+      // corrige unos frames más, hasta que las secciones que se pintaron dejan
+      // de cambiar de alto y el destino queda quieto.
+      onAnchorClick = (e: MouseEvent) => {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey) return;
+        const a = (e.target as HTMLElement | null)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null;
+        const href = a?.getAttribute("href");
+        if (!href || href === "#") return;
+        const target = document.querySelector<HTMLElement>(href);
+        if (!target) return;
+        e.preventDefault();
+        history.pushState(null, "", href);
+        // Un frame de espera: el menú se cierra y libera el overflow del body.
+        requestAnimationFrame(() => {
+          let tries = 0;
+          let last = NaN;
+          const jump = () => {
+            target.scrollIntoView({ block: "start", behavior: "instant" });
+            const top = target.getBoundingClientRect().top;
+            if (Math.abs(top - last) > 1 && ++tries < 12) {
+              last = top;
+              requestAnimationFrame(jump);
+            }
+          };
+          jump();
+        });
+      };
+      document.addEventListener("click", onAnchorClick);
     }
 
     const ctx = gsap.context(() => {

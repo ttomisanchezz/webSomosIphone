@@ -50,13 +50,13 @@ export function waProduct(name: string): string {
 }
 
 /**
- * Link de WhatsApp para preguntar la entrega mínima en cuotas. El mensaje
+ * Link de WhatsApp para preguntar la entrega inicial en cuotas. El mensaje
  * termina en "iPhone que quiero:" para que la persona escriba el modelo antes
  * de enviarlo (WhatsApp deja editar el texto precargado).
  */
 export function waCuotas(): string {
   return waLink(
-    "Hola somos iphone nqn 👋 Quiero comprar en cuotas. ¿Cuál es la entrega mínima? El iPhone que quiero: "
+    "Hola somos iphone nqn 👋 Quiero comprar en cuotas. ¿Cuánto sería la entrega inicial? El iPhone que quiero: "
   );
 }
 

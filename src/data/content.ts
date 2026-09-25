@@ -7,15 +7,16 @@
 import { USED_IPHONES, formatARS } from "@/data/products";
 
 // ── Financiación ─────────────────────────────────────────────
-// Dos formas de comprar: contado, o hasta CUOTAS_MAX cuotas con una entrega
-// inicial. La entrega mínima exacta depende del modelo, por eso el CTA de la
-// sección manda a preguntarla por WhatsApp. Cambiando estos dos números se
-// actualizan la sección Financiación, el beneficio y la FAQ.
+// Dos formas de comprar: contado, o entrega inicial + hasta CUOTAS_MAX cuotas.
+// La entrega inicial depende de cada equipo, así que no se publica un
+// porcentaje: el CTA de la sección manda a preguntarla por WhatsApp. Las
+// fechas de las cuotas quedan en el compromiso de pago; se pagan en efectivo
+// o por transferencia. Cambiando esto se actualizan Financiación, el
+// beneficio y la FAQ.
 export const CUOTAS_MAX = 2;
-/** Porcentaje del equipo que se entrega para retirarlo en cuotas. */
-export const ENTREGA_INICIAL_PCT = 60;
+export const MEDIOS_CUOTAS = "en efectivo o por transferencia";
 
-export const textoCuotas = `Podés retirar tu celular pagando en hasta ${CUOTAS_MAX} cuotas, con una entrega inicial del ${ENTREGA_INICIAL_PCT}% del equipo.`;
+export const textoCuotas = `Dejás una entrega inicial, te llevás tu iPhone y pagás el resto en hasta ${CUOTAS_MAX} cuotas, ${MEDIOS_CUOTAS}.`;
 
 // ── Comparativa ──────────────────────────────────────────────
 export interface ComparisonRow {
@@ -127,7 +128,7 @@ export const benefits: Benefit[] = [
   {
     icon: "card",
     title: `Hasta ${CUOTAS_MAX} cuotas`,
-    text: `Retirás tu iPhone con una entrega inicial del ${ENTREGA_INICIAL_PCT}% y pagás en hasta ${CUOTAS_MAX} cuotas.`,
+    text: `Dejás una entrega inicial, te lo llevás y pagás el resto en hasta ${CUOTAS_MAX} cuotas.`,
   },
   {
     icon: "transfer",
@@ -223,11 +224,11 @@ export interface FaqItem {
 export const faqItems: FaqItem[] = [
   {
     q: "¿Cómo funcionan las cuotas?",
-    a: `${textoCuotas} La entrega mínima depende del modelo: escribinos por WhatsApp con el iPhone que querés y te la pasamos.`,
+    a: `${textoCuotas} La entrega inicial depende del equipo: escribinos por WhatsApp con el iPhone que querés y te la pasamos. Las fechas de cada cuota quedan acordadas en el compromiso de pago.`,
   },
   {
     q: "¿Qué formas de pago aceptan?",
-    a: `De contado por transferencia, Mercado Pago o efectivo, o en hasta ${CUOTAS_MAX} cuotas con una entrega inicial del ${ENTREGA_INICIAL_PCT}% del equipo.`,
+    a: `De contado por transferencia, Mercado Pago o efectivo. En cuotas: una entrega inicial y el resto en hasta ${CUOTAS_MAX} cuotas, ${MEDIOS_CUOTAS}.`,
   },
   {
     q: "¿Qué garantía tienen los equipos?",

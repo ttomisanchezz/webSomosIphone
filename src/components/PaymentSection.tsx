@@ -8,7 +8,7 @@ import {
 import { Icon, WhatsAppIcon } from "@/components/icons";
 import {
   CUOTAS_MAX,
-  ENTREGA_INICIAL_PCT,
+  MEDIOS_CUOTAS,
   payments,
   textoCuotas,
 } from "@/data/content";
@@ -64,19 +64,24 @@ export function PaymentSection() {
                   Hasta {CUOTAS_MAX} cuotas
                 </h3>
 
-                <div className="mt-5 flex items-end gap-3">
-                  <span className="font-display text-5xl font-semibold leading-none text-gradient-azul sm:text-6xl">
-                    {ENTREGA_INICIAL_PCT}%
-                  </span>
-                  <span className="pb-1 text-sm leading-snug text-slate-300">
-                    de entrega inicial
-                    <br />y retirás tu celular
-                  </span>
-                </div>
+                <ol className="mt-5 space-y-3">
+                  {[
+                    ["1", "Dejás una entrega inicial y te llevás tu iPhone."],
+                    ["2", `Pagás el resto en hasta ${CUOTAS_MAX} cuotas, en las fechas que acordamos en el compromiso de pago.`],
+                    ["3", `Cada cuota, ${MEDIOS_CUOTAS}.`],
+                  ].map(([n, t]) => (
+                    <li key={n} className="flex items-start gap-3">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-azul/20 font-display text-sm font-semibold text-azul-claro">
+                        {n}
+                      </span>
+                      <span className="pt-0.5 text-sm leading-relaxed text-slate-300 sm:text-base">{t}</span>
+                    </li>
+                  ))}
+                </ol>
 
                 <p className="mt-6 text-sm leading-relaxed text-slate-300 sm:text-base">
-                  Para saber más, mandanos qué celular querés y te decimos cuál
-                  es el mínimo de entrega.
+                  La entrega inicial depende del equipo: mandanos qué iPhone
+                  querés y te la pasamos.
                 </p>
 
                 <Button
