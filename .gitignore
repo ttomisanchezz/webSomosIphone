@@ -15,3 +15,6 @@ imagenes14prodesarmado
 # SO / editor
 .DS_Store
 Thumbs.db
+
+# fotos personales de referencia (no van al repo público)
+fotos-referencia
