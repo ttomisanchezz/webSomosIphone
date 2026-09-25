@@ -53,8 +53,8 @@ type Portada = "a" | "b";
 /** Punto (0..1) de la imagen hacia donde apunta cada zoom, por variante. */
 const FOCUS: Record<Portada, Record<Variant, Record<Focus, [number, number]>>> = {
   a: {
-    mobile: { camara: [0.606, 0.327], cartel: [0.296, 0.482] },
-    desktop: { camara: [0.532, 0.327], cartel: [0.436, 0.483] },
+    mobile: { camara: [0.616, 0.34], cartel: [0.288, 0.511] },
+    desktop: { camara: [0.531, 0.31], cartel: [0.41, 0.517] },
   },
   b: {
     mobile: { camara: [0.617, 0.366], cartel: [0.27, 0.514] },
