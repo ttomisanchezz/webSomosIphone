@@ -459,8 +459,18 @@ html.lenis body {
 .hero-float { animation: hero-float 4.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .hero-float { animation: none; } }
 
+/* iPhones de la portada en celular (imagen): flotan y se inclinan apenas,
+   como la versión 3D. Solo transform: lo mueve la GPU, sin repintar. */
+@keyframes hero-phone {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-4%) rotate(3deg); }
+}
+.hero-phone { animation: hero-phone 6.5s ease-in-out infinite; will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .hero-phone { animation: none; } }
+
 /* Portada tapada por el video del zoom o fuera de pantalla (HeroStage). */
 .hero-paused .color-bends,
+.hero-paused .hero-phone,
 .hero-paused .hero-float {
   animation-play-state: paused;
 }

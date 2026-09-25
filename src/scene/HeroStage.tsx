@@ -4,9 +4,20 @@ import type { Layer } from "./floatingPhones";
 import { ColorBends } from "@/components/ColorBends";
 import { HeroSides, HeroWordmark } from "./HeroCopy";
 import { loadSequence, onAnyFrame, pickVariant, SEQUENCES, type Variant } from "./frames";
-import { afterLoadIdle, onFirstInteraction, slowNetwork } from "@/utils/network";
+import { afterLoadIdle, slowNetwork } from "@/utils/network";
 
 type Focus = "camara" | "cartel";
+
+/**
+ * iPhones de la portada en celular: capturas de la capa 3D (mismos equipos,
+ * lugar y tamaño que dibuja floatingPhones en celular). x/y = centro en % de
+ * la pantalla, h = alto en % del alto de pantalla. En la escena 3D esas
+ * proporciones no dependen del ancho del celular, así que calzan igual.
+ */
+const MOBILE_PHONES = [
+  { src: "/media/hero/iphone17promax.webp", w: 333, h: 657, x: 12.5, y: 28.08, height: 32.69, delay: "0s", dur: "6.5s" },
+  { src: "/media/hero/iphone17.webp", w: 174, h: 346, x: 36.33, y: 10.25, height: 17.21, delay: "-2.4s", dur: "7.5s" },
+];
 
 /** Foto recortada de Fran y Tomi y puntos de foco (0..1 de la imagen). */
 export const DUO = {
@@ -173,12 +184,10 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
         });
       }, { timeout: 1500 });
     };
-    // En celular los iPhones 3D (three.js + modelos) no bajan al abrir la
-    // página: recién con el primer toque o scroll. Quien entra y se va sin
-    // tocar nada no gasta datos ni batería en eso, y la portada sale antes.
-    let stopFirstTouch = () => {};
-    if (mobile) stopFirstTouch = onFirstInteraction(() => { if (!cancelled) startLayers(); });
-    else startLayers();
+    // En celular no hay iPhones 3D: van como imagen (MOBILE_PHONES). Crear
+    // el WebGL, el reflejo y compilar los shaders congelaba la página justo
+    // en el primer scroll.
+    if (!mobile) startLayers();
     const onMove = (e: PointerEvent) => {
       if (!allowMotion()) return;
       const x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -228,7 +237,6 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
     window.addEventListener("resize", onResize);
     return () => {
       cancelled = true;
-      stopFirstTouch();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("scroll", startFrames);
@@ -246,7 +254,23 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
       <div ref={zoomRef} className="absolute inset-0 will-change-transform">
         {/* Fondo: los colores en movimiento del home anterior */}
         <ColorBends />
-        <canvas ref={backRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
+        <canvas ref={backRef} className="absolute inset-0 h-full w-full max-lg:hidden" aria-hidden="true" />
+        {/* Celular: los iPhones como imagen, flotando con CSS (sin WebGL). */}
+        <div className="pointer-events-none absolute inset-0 lg:hidden" aria-hidden="true">
+          {MOBILE_PHONES.map((p) => (
+            <img
+              key={p.src}
+              src={p.src}
+              width={p.w}
+              height={p.h}
+              alt=""
+              decoding="async"
+              draggable={false}
+              className="hero-phone absolute w-auto max-w-none -translate-x-1/2 -translate-y-1/2 select-none"
+              style={{ left: `${p.x}%`, top: `${p.y}%`, height: `${p.height}%`, animationDelay: p.delay, animationDuration: p.dur }}
+            />
+          ))}
+        </div>
         <HeroWordmark />
         {/* Fran y Tomi en el centro */}
         <div className="absolute bottom-[27svh] left-1/2 h-[min(52svh,calc(73svh-180px))] w-full -translate-x-1/2 lg:bottom-0 lg:h-[74svh] lg:w-[46vw]">
