@@ -23,8 +23,8 @@ const TEXT_SHADOW: CSSProperties = { textShadow: "0 2px 18px rgba(0,0,0,.9), 0 0
 /** Wordmark gigante detrás de ellos. */
 export function HeroWordmark() {
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-[13svh] select-none text-center lg:top-[12svh]" aria-hidden="true">
-      <span className="inline-block font-anton uppercase leading-none" style={{ fontSize: "clamp(56px, 13.5vw, 230px)", letterSpacing: "0.01em", ...WORD_FX }}>
+    <div className="pointer-events-none absolute inset-x-0 top-[112px] select-none whitespace-nowrap text-center lg:top-[12svh]" aria-hidden="true">
+      <span className="inline-block font-anton uppercase leading-none" style={{ fontSize: "clamp(38px, 12vw, 230px)", letterSpacing: "0.01em", ...WORD_FX }}>
         <span style={{ backgroundImage: "linear-gradient(180deg,#ffffff 0%,#e2e3e5 55%,#9a9da1 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Somos iPhone </span>
         <span style={NQN_GRADIENT}>NQN</span>
       </span>

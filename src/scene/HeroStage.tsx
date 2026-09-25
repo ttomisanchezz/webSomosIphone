@@ -176,7 +176,7 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
         <canvas ref={backRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
         <HeroWordmark />
         {/* Fran y Tomi en el centro */}
-        <div className="absolute bottom-[28svh] left-1/2 h-[52svh] w-full -translate-x-1/2 lg:bottom-0 lg:h-[74svh] lg:w-[46vw]">
+        <div className="absolute bottom-[27svh] left-1/2 h-[min(52svh,calc(73svh-180px))] w-full -translate-x-1/2 lg:bottom-0 lg:h-[74svh] lg:w-[46vw]">
           <div className="absolute bottom-[8%] left-1/2 h-[70%] w-[90%] -translate-x-1/2 rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, rgba(196,196,196,.16), transparent)" }} />
           <img
             ref={imgRef}
