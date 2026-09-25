@@ -14,7 +14,7 @@ interface SeqInfo {
 
 export const SEQUENCES: Record<SeqName, SeqInfo> = {
   camara: { frames: 61, variants: ["mobile", "desktop"] },
-  cartel: { frames: 61, variants: ["mobile"] },
+  cartel: { frames: 61, variants: ["mobile", "desktop"] },
 };
 
 export function frameUrl(seq: SeqName, variant: Variant, i: number): string {
