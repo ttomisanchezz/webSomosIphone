@@ -20,17 +20,16 @@ export interface Slot {
 }
 
 const M = MODELS;
-// Mayoría a la derecha (donde están Fran y Tomi); los de la izquierda,
-// lejos y chicos para no tapar el texto.
+// Repartidos a los dos lados de Fran y Tomi (que están en el centro).
 export const BACK_SLOTS: Slot[] = [
-  { url: M.iphone17ProMax, x: 0.12, y: 0.72, z: -3, scale: 1.0, spin: 0.35, phase: 0 },
-  { url: M.iphone16Pro, x: 0.95, y: 0.62, z: -3, scale: 1.0, spin: -0.3, phase: 1.2 },
-  { url: M.iphone15ProMax, x: 0.38, y: 0.18, z: -6, scale: 0.9, spin: 0.25, phase: 2.1 },
-  { url: M.iphone14Pro, x: 0.78, y: -0.1, z: -5.5, scale: 0.9, spin: -0.28, phase: 0.6 },
-  { url: M.iphone13ProMax, x: 0.06, y: -0.5, z: -4, scale: 0.9, spin: 0.3, phase: 3.3 },
-  { url: M.iphone16Plus, x: 1.0, y: -0.4, z: -4, scale: 1.0, spin: -0.33, phase: 1.8 },
-  { url: M.iphone17, x: -0.6, y: 0.82, z: -10, scale: 0.8, spin: 0.22, phase: 4.1 },
-  { url: M.iphone15, x: -0.85, y: -0.78, z: -10, scale: 0.8, spin: -0.2, phase: 2.7 },
+  { url: M.iphone17ProMax, x: -0.82, y: 0.45, z: -3, scale: 1.0, spin: 0.35, phase: 0 },
+  { url: M.iphone16Pro, x: 0.84, y: 0.5, z: -3, scale: 1.0, spin: -0.3, phase: 1.2 },
+  { url: M.iphone15ProMax, x: -0.5, y: -0.05, z: -6.5, scale: 0.9, spin: 0.25, phase: 2.1 },
+  { url: M.iphone14Pro, x: 0.52, y: 0.0, z: -6.5, scale: 0.9, spin: -0.28, phase: 0.6 },
+  { url: M.iphone13ProMax, x: -0.96, y: -0.55, z: -4.5, scale: 0.9, spin: 0.3, phase: 3.3 },
+  { url: M.iphone16Plus, x: 0.97, y: -0.5, z: -4.5, scale: 1.0, spin: -0.33, phase: 1.8 },
+  { url: M.iphone17, x: -0.3, y: 0.86, z: -10, scale: 0.8, spin: 0.22, phase: 4.1 },
+  { url: M.iphone15, x: 0.32, y: 0.84, z: -10, scale: 0.8, spin: -0.2, phase: 2.7 },
 ];
 export const FRONT_SLOTS: Slot[] = [
   { url: M.iphone17ProMax, x: -0.92, y: -0.6, z: 1.2, scale: 0.8, spin: 0.4, phase: 0.9 },

@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { allowMotion, getMotionPrefs } from "@/anim/motion";
 import type { Layer } from "./floatingPhones";
 import { ColorBends } from "@/components/ColorBends";
-import { HeroCopy } from "./HeroCopy";
+import { HeroSides, HeroWordmark } from "./HeroCopy";
 
 /** Foto recortada de Fran y Tomi y puntos de foco (0..1 de la imagen). */
 export const DUO = {
@@ -99,8 +99,9 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
         {/* Fondo: los colores en movimiento del home anterior */}
         <ColorBends />
         <canvas ref={backRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
-        {/* Fran y Tomi: a la derecha en PC, arriba a la derecha en celular */}
-        <div className="absolute right-0 top-[5svh] h-[44svh] w-[64%] lg:bottom-0 lg:top-auto lg:h-[92svh] lg:w-1/2">
+        <HeroWordmark />
+        {/* Fran y Tomi en el centro */}
+        <div className="absolute bottom-[28svh] left-1/2 h-[52svh] w-full -translate-x-1/2 lg:bottom-0 lg:h-[74svh] lg:w-[46vw]">
           <div className="absolute bottom-[8%] left-1/2 h-[70%] w-[90%] -translate-x-1/2 rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, rgba(196,196,196,.16), transparent)" }} />
           <img
             ref={imgRef}
@@ -116,9 +117,9 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
         </div>
         <canvas ref={frontRef} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true" />
       </div>
-      {/* Texto del home: arriba en celular, columna izquierda en PC */}
-      <div ref={introRef} className="absolute inset-y-0 left-0 z-10 w-full lg:w-1/2">
-        <HeroCopy />
+      {/* Textos alrededor de ellos */}
+      <div ref={introRef} className="absolute inset-0 z-10">
+        <HeroSides />
       </div>
       <div ref={blackRef} className="pointer-events-none absolute inset-0 z-20 bg-[var(--bg-main)] opacity-0" />
     </div>
