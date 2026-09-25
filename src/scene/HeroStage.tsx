@@ -56,7 +56,8 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
     import("./floatingPhones").then(({ createLayer, BACK_SLOTS, FRONT_SLOTS }) => {
       if (cancelled) return;
       const b = backRef.current && createLayer(backRef.current, BACK_SLOTS, { mobile });
-      const f = frontRef.current && createLayer(frontRef.current, FRONT_SLOTS, { mobile });
+      // En celular no hay capa delantera: taparía a Fran y Tomi en una pantalla angosta.
+      const f = !mobile && frontRef.current && createLayer(frontRef.current, FRONT_SLOTS, { mobile });
       layers.current = [b, f].filter(Boolean) as Layer[];
     });
     const onMove = (e: PointerEvent) => {
