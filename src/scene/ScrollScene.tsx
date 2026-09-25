@@ -1,66 +1,81 @@
-import type { ReactNode } from "react";
-import { FrameScrub, type Step } from "./FrameScrub";
+import { useEffect, useRef, type ReactNode } from "react";
+import { HeroStage, type HeroStageHandle } from "./HeroStage";
 
 /**
  * [feat/escena-scroll] Escena principal.
  * Contrato (no cambiar sin avisar a las otras ramas):
- *  - camaraPanel: aparece al terminar el zoom a la cámara (Precios).
- *  - cartelPanel: aparece al terminar el zoom al cartel (Pagos).
+ *  - camaraPanel: aparece al terminar el zoom a la cámara del iPhone de Fran (Precios).
+ *  - cartelPanel: aparece al terminar el zoom al cartel de Tomi (Pagos).
  *
- * Recorrido:
- *  A) portada → zoom a la cámara del iPhone de Fran (termina en negro)
- *  ── camaraPanel (fondo negro, flujo normal)
- *  B) sale de la cámara → portada → zoom al cartel "ACEPTAMOS CUOTAS"
- *  ── cartelPanel
- *  C) sale del cartel → portada → sigue el resto de la web
+ * Un solo escenario "sticky" (fondo futurista + iPhones 3D + Fran y Tomi)
+ * queda fijo detrás mientras se scrollea; los paneles pasan por encima con
+ * fondo negro. Los espaciadores A, B y C marcan cuándo hace cada zoom:
+ *  A) portada → zoom a la cámara   ── Precios
+ *  B) sale de la cámara → zoom al cartel   ── Pagos
+ *  C) sale del cartel → portada → sigue la web
  */
 export interface ScrollSceneProps {
   camaraPanel: ReactNode;
   cartelPanel: ReactNode;
 }
 
-const LAST = 60;
-const HANDOFF = 10; // frame del video viejo donde se funde la portada nueva
-
-const A: Step[] = [
-  { kind: "still", focus: "camara", zoom: [1, 1] }, // un momento quieto en la portada
-  { kind: "still", focus: "camara", zoom: [1, 1.8], fadeTo: { seq: "camara", frame: HANDOFF } },
-  { kind: "frames", seq: "camara", from: HANDOFF, to: 35 },
-  { kind: "frames", seq: "camara", from: 35, to: LAST },
-];
-
-const B: Step[] = [
-  { kind: "frames", seq: "camara", from: LAST, to: HANDOFF },
-  { kind: "still", focus: "camara", zoom: [1.8, 1], fadeFrom: { seq: "camara", frame: HANDOFF } },
-  { kind: "still", focus: "cartel", zoom: [1, 1.8], fadeTo: { seq: "cartel", frame: HANDOFF } },
-  { kind: "frames", seq: "cartel", from: HANDOFF, to: LAST },
-];
-
-const C: Step[] = [
-  { kind: "frames", seq: "cartel", from: LAST, to: HANDOFF },
-  { kind: "still", focus: "cartel", zoom: [1.8, 1], fadeFrom: { seq: "cartel", frame: HANDOFF } },
-];
-
-function Intro() {
-  return (
-    <div
-      className="flex h-full flex-col items-center justify-end pb-[max(2.5rem,env(safe-area-inset-bottom))] text-center"
-      style={{ opacity: "calc(1 - var(--p, 0) * 4)" }}
-    >
-      <h1 className="text-4xl font-semibold tracking-tight drop-shadow md:text-6xl">somos iphone nqn</h1>
-      <p className="mt-2 text-sm text-[var(--text-secondary)] md:text-base">Deslizá para ver precios ↓</p>
-    </div>
-  );
-}
+const smooth = (a: number, b: number, x: number) => {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+};
 
 export function ScrollScene({ camaraPanel, cartelPanel }: ScrollSceneProps) {
+  const stage = useRef<HeroStageHandle>(null);
+  const a = useRef<HTMLDivElement>(null);
+  const b = useRef<HTMLDivElement>(null);
+  const c = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let raf = 0;
+    const prog = (el: HTMLElement | null) => {
+      if (!el) return 0;
+      const r = el.getBoundingClientRect();
+      // 0 cuando el espaciador llega arriba de la pantalla, 1 cuando su final
+      // llega abajo (justo antes de que entre el panel siguiente)
+      const total = r.height - window.innerHeight;
+      return total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
+    };
+    const update = () => {
+      raf = 0;
+      const pa = prog(a.current), pb = prog(b.current), pc = prog(c.current);
+      const s = stage.current;
+      if (!s) return;
+      if (pb <= 0) {
+        s.setZoom("camara", smooth(0.2, 1, pa), pa);
+      } else if (pc <= 0) {
+        if (pb < 0.5) s.setZoom("camara", 1 - smooth(0, 0.45, pb), 1);
+        else s.setZoom("cartel", smooth(0.55, 1, pb), 1);
+      } else {
+        s.setZoom("cartel", 1 - smooth(0, 0.8, pc), 1 - smooth(0.5, 1, pc));
+      }
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <div id="inicio">
-      <FrameScrub steps={A} heightVh={300} overlay={<Intro />} label="Inicio" />
-      <div id="precios" className="relative bg-[var(--bg-main)]">{camaraPanel}</div>
-      <FrameScrub steps={B} heightVh={400} label="Transición a formas de pago" />
-      <div id="pagos" className="relative bg-[var(--bg-main)]">{cartelPanel}</div>
-      <FrameScrub steps={C} heightVh={200} label="Transición" />
+    <div id="inicio" className="relative">
+      {/* Escenario fijo durante toda la escena */}
+      <div className="sticky top-0 z-0 -mb-[100dvh] h-dvh">
+        <HeroStage ref={stage} />
+      </div>
+      <div ref={a} aria-hidden="true" style={{ height: "200vh" }} />
+      <div id="precios" className="relative z-10 bg-[var(--bg-main)]">{camaraPanel}</div>
+      <div ref={b} aria-hidden="true" style={{ height: "250vh" }} />
+      <div id="pagos" className="relative z-10 bg-[var(--bg-main)]">{cartelPanel}</div>
+      <div ref={c} aria-hidden="true" style={{ height: "150vh" }} />
     </div>
   );
 }
