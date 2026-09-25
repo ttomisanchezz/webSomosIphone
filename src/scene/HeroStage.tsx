@@ -32,8 +32,9 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
       const zoom = zoomRef.current, img = imgRef.current;
       if (!zoom || !img) return;
       const [fx, fy] = DUO.focus[focus];
-      // posición del foco dentro del escenario (offset* ignora transforms)
-      const ox = img.offsetLeft + fx * img.offsetWidth;
+      // posición del foco dentro del escenario (offset* ignora transforms, y la
+      // imagen está centrada con translateX(-50%): se lo descontamos)
+      const ox = img.offsetLeft - img.offsetWidth / 2 + fx * img.offsetWidth;
       const oy = img.offsetTop + fy * img.offsetHeight;
       const e = z * z * (3 - 2 * z);
       const s = Math.pow(MAX_SCALE, e);
