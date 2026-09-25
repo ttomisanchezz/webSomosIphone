@@ -1,0 +1,17 @@
+# deps / builds
+node_modules
+dist
+.ssr
+.vercel
+
+# secretos
+.env*
+
+# material de trabajo pesado (no va al repo)
+deliverables
+glb-originals-backup
+imagenes14prodesarmado
+
+# SO / editor
+.DS_Store
+Thumbs.db

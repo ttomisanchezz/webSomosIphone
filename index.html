@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="somos iphone nqn — iPhones nuevos y usados en Neuquén. Entrega en mano, equipos verificados, garantía local y pago de contado o en hasta 2 cuotas. Consultá stock y precios por WhatsApp."
+    />
+    <meta name="theme-color" content="#0d0d0d" />
+
+    <!-- Las URLs salen de SITE_URL en vite.config.ts (un solo lugar). -->
+    <link rel="canonical" href="%SITE_URL%/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+
+    <!-- Open Graph: lo que se ve cuando alguien pasa el link por WhatsApp,
+         Instagram o Facebook. Sin esto aparece un rectangulo gris vacio. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="somos iphone nqn" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta
+      property="og:title"
+      content="somos iphone nqn — iPhones nuevos y usados en Neuquén"
+    />
+    <meta
+      property="og:description"
+      content="Equipos verificados con garantía local. Contado o hasta 2 cuotas. Entrega en mano en Neuquén Capital y envíos a toda la provincia."
+    />
+    <!-- JPEG a propósito: 58 KB contra 280 KB del PNG. WhatsApp no arma la
+         vista previa si la imagen pesa demasiado. -->
+    <meta property="og:image" content="%SITE_URL%/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="somos iphone nqn — iPhones nuevos y usados en Neuquén"
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="somos iphone nqn — iPhones nuevos y usados en Neuquén"
+    />
+    <meta
+      name="twitter:description"
+      content="Equipos verificados con garantía local. Contado o hasta 2 cuotas. Entrega en mano en Neuquén Capital y envíos a toda la provincia."
+    />
+    <meta name="twitter:image" content="%SITE_URL%/og.jpg" />
+    <!-- PNG para Safari (no toma favicons SVG) y el ícono que usa el iPhone
+         cuando alguien guarda el sitio en la pantalla de inicio. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="somos iphone" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c4c4c4'/%3E%3Crect x='11' y='5.5' width='10' height='21' rx='3' fill='none' stroke='%230d0d0d' stroke-width='2'/%3E%3Ccircle cx='16' cy='23' r='1.1' fill='%230d0d0d'/%3E%3C/svg%3E"
+    />
+    <link
+      rel="preload"
+      href="/fonts/inter.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/spacegrotesk.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <!-- Anton es la del "SOMOS IPHONE NQN" gigante del hero (el elemento más
+         grande de la primera pantalla): sin preload arrancaba recién cuando
+         el CSS ya estaba aplicado. -->
+    <link
+      rel="preload"
+      href="/fonts/anton.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <title>somos iphone nqn — iPhones nuevos y usados en Neuquén</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "somos iphone nqn",
+        "description": "iPhones nuevos sellados y usados verificados en Neuquén. Garantía local, entrega en mano y envíos a toda la provincia.",
+        "url": "%SITE_URL%/",
+        "image": "%SITE_URL%/og.jpg",
+        "telephone": "+5492994295806",
+        "priceRange": "$",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Neuquén",
+          "addressRegion": "Neuquén",
+          "addressCountry": "AR"
+        },
+        "areaServed": { "@type": "State", "name": "Provincia de Neuquén" },
+        "sameAs": ["https://instagram.com/somosiphone_nqn"],
+        "makesOffer": {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Product",
+            "name": "iPhone",
+            "category": "Teléfonos celulares"
+          },
+          "priceCurrency": "ARS"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

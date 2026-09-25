@@ -1,0 +1,449 @@
+@import "tailwindcss";
+
+/* ── Fuentes propias ──────────────────────────────────────────
+   Antes se pedian a fonts.googleapis.com: 10 archivos, hasta 318 KB y dos
+   conexiones extra (DNS + TLS a googleapis y a gstatic) bloqueando el render.
+   Ahora son tres woff2 variables, subset latin, servidos desde el mismo
+   dominio con cache de un ano: 92 KB en total.
+   Inter y Space Grotesk cubren los pesos 400-600 con un solo archivo cada una.
+   swap: el texto se ve con la fuente del sistema desde el primer frame y
+   cambia cuando llega la definitiva, en vez de quedar invisible. */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/inter.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/spacegrotesk.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Anton";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/anton.woff2") format("woff2");
+}
+
+/* ── Paleta (identidad de Instagram: negro + plata + blanco) ──
+   ÚNICO lugar donde viven los colores. Los tokens de Tailwind de abajo
+   (ink, accent, slate, ...) apuntan a estas variables. */
+:root {
+  /* Brand */
+  --brand-black: #0d0d0d;
+  --brand-silver: #c4c4c4;
+  --brand-white: #ffffff;
+  /* Backgrounds */
+  --bg-deep: #08090a;
+  --bg-main: #0d0d0d;
+  --bg-card: #171819;
+  --bg-card-hover: #202123;
+  --bg-secondary: #242527;
+  /* Borders */
+  --border-dark: #292b2d;
+  --border-default: #343638;
+  --border-highlight: #777a7e;
+  /* Typography */
+  --text-primary: #ffffff;
+  --text-secondary: #a2a2a2;
+  --text-muted: #73767a;
+  /* Metallic */
+  --silver: #c4c4c4;
+  --silver-light: #e2e3e5;
+  --silver-dark: #85888b;
+  --silver-gradient: linear-gradient(
+    135deg,
+    #8f9194 0%,
+    #f1f1f1 35%,
+    #bfc1c3 60%,
+    #7d7f82 100%
+  );
+  /* Functional: SOLO el ícono oficial de WhatsApp. */
+  --whatsapp: #25d366;
+  /* Azul sutil (el azul original de la marca, el del favicon). SOLO en las
+     cards de abajo: Comparativa, Financiación, Cómo comprar, FAQ y el CTA
+     final, para que no quede todo gris. Decisión de Tomás, 24/09/2026. */
+  --blue: #2e7bff;
+  --blue-light: #8ab4ff;
+  /* Valores puntuales de cards y botones. */
+  --card-border: #303235;
+  --card-text: #f5f5f5;
+  --cta-bg: #e5e5e5;
+  --button-border: #36383a;
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-anton: "Anton", "Space Grotesk", ui-sans-serif, sans-serif;
+
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-float: float 6.5s ease-in-out infinite;
+  --animate-float-slow: float 9.5s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-glow: glow 3.6s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.6s linear infinite;
+  --animate-spin-slow: spin 28s linear infinite;
+  --animate-twinkle: twinkle 4s ease-in-out infinite;
+}
+
+/* Colores de Tailwind → variables de la paleta (inline: las clases usan
+   var(...) directo, así cambiar :root alcanza). */
+@theme inline {
+  /* Negros de base (fondos) */
+  --color-ink-950: var(--bg-main);
+  --color-ink-900: var(--bg-card);
+  --color-ink-800: var(--bg-card-hover);
+  --color-ink-700: var(--bg-secondary);
+  --color-deep: var(--bg-deep);
+  --color-card: var(--bg-card);
+  --color-card-hover: var(--bg-card-hover);
+  --color-card-border: var(--card-border);
+  --color-card-text: var(--card-text);
+
+  /* Acento = plata */
+  --color-accent-200: var(--silver-light);
+  --color-accent-300: var(--silver);
+  --color-accent-400: var(--silver);
+  --color-accent-500: var(--silver);
+  --color-accent-600: var(--silver-dark);
+  --color-accent-700: var(--silver-dark);
+  --color-silver: var(--silver);
+  --color-silver-light: var(--silver-light);
+  --color-silver-dark: var(--silver-dark);
+  --color-brand-black: var(--brand-black);
+  --color-cta: var(--cta-bg);
+  /* Nombre heredado (era cian): hoy es plata. Lo usa Despiece.tsx. */
+  --color-cyan-glow: var(--silver-light);
+
+  /* Bordes */
+  --color-line-dark: var(--border-dark);
+  --color-line: var(--border-default);
+  --color-line-highlight: var(--border-highlight);
+  --color-button-border: var(--button-border);
+
+  /* Grises de texto: el slate de Tailwind tiene tinte azul. Se borra entero
+     y quedan solo los tonos que usa el sitio, neutros. */
+  --color-slate-*: initial;
+  --color-slate-100: var(--card-text);
+  --color-slate-200: var(--silver-light);
+  --color-slate-300: var(--silver);
+  --color-slate-400: var(--text-secondary);
+  --color-slate-500: var(--text-muted);
+  --color-slate-600: var(--text-muted);
+
+  /* Ámbar: sin uso de marca; se neutraliza por si vuelve una etiqueta. */
+  --color-amber-*: initial;
+
+  /* WhatsApp: SOLO para el ícono. */
+  --color-wa: var(--whatsapp);
+
+  /* Azul sutil de las cards de abajo (ver --blue). */
+  --color-azul: var(--blue);
+  --color-azul-claro: var(--blue-light);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes glow {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 999px;
+  border: 2px solid var(--bg-deep);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-highlight);
+}
+
+/* Plata con texto negro: blanco sobre plata no se leía. */
+::selection {
+  background: var(--silver);
+  color: var(--brand-black);
+}
+
+/* Mobile tap: elimina el delay de 300ms y el flash azul al tocar. */
+a,
+button,
+[role="button"],
+[role="tab"],
+input,
+select,
+textarea,
+label,
+summary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Utilities */
+/* Cards: grafito con borde fino, sin tinte. */
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--card-border);
+}
+
+/* Cards de abajo: el mismo grafito con un velo azul de arriba a la
+   izquierda y el borde apenas azulado. Va junto con .glass (lo pisa). */
+.glass-azul {
+  background: linear-gradient(
+      155deg,
+      rgb(46 123 255 / 0.1) 0%,
+      rgb(46 123 255 / 0.03) 45%,
+      transparent 75%
+    ),
+    var(--bg-card);
+  border-color: rgb(46 123 255 / 0.22);
+}
+
+/* Barras fijas (header al scrollear, barra inferior del celular). */
+.glass-strong {
+  background: rgb(13 13 13 / 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border-default);
+}
+
+.text-glow {
+  text-shadow: 0 0 26px rgb(255 255 255 / 0.18);
+}
+
+/* Plata metálica: solo en detalles puntuales (NQN del hero). */
+.text-gradient {
+  background: var(--silver-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Blanco → azul: cifras destacadas de las cards de abajo (el 60%). */
+.text-gradient-azul {
+  background: linear-gradient(120deg, #ffffff 0%, #cfe0ff 45%, var(--blue-light) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.starfield {
+  background-image: radial-gradient(
+      1.4px 1.4px at 20% 30%,
+      rgba(255, 255, 255, 0.75),
+      transparent
+    ),
+    radial-gradient(1px 1px at 70% 60%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.6px 1.6px at 40% 80%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 85% 22%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.2px 1.2px at 12% 70%, rgba(255, 255, 255, 0.55), transparent);
+  background-repeat: repeat;
+  background-size: 260px 260px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ── Lenis smooth scroll ──────────────────────────────────── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ── Split-text ───────────────────────────────────────────── */
+.split-word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+/* Las palabras dentro de un título con gradiente conservan el gradiente. */
+.text-gradient .split-word {
+  background: var(--silver-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ── Aurora animada (fondo premium) ───────────────────────── */
+.aurora {
+  position: absolute;
+  inset: -25%;
+  /* Brillos plata muy sutiles sobre el negro. */
+  background: radial-gradient(
+      38% 48% at 22% 32%,
+      rgb(196 196 196 / 0.05),
+      transparent 60%
+    ),
+    radial-gradient(34% 44% at 78% 22%, rgb(226 227 229 / 0.035), transparent 60%),
+    radial-gradient(46% 56% at 62% 82%, rgb(133 136 139 / 0.05), transparent 60%);
+  filter: blur(44px);
+  animation: aurora-drift 22s ease-in-out infinite alternate;
+}
+/* En móvil el aurora queda estático (fluidez primero). */
+@media (max-width: 1023px) {
+  .aurora {
+    animation: none;
+  }
+}
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, 2%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-2%, 3%, 0) scale(1.04);
+  }
+}
+
+/* ── Color Bends (fondo del home: bandas grafito/plata que fluyen) ── */
+.color-bends {
+  background-image: repeating-linear-gradient(
+    115deg,
+    transparent 0 6%,
+    rgb(196 196 196 / 0.07) 6% 11%,
+    transparent 11% 18%,
+    rgb(226 227 229 / 0.045) 18% 23%,
+    transparent 23% 32%,
+    rgb(133 136 139 / 0.08) 32% 38%,
+    transparent 38% 50%
+  );
+  background-size: 220% 220%;
+  filter: blur(42px);
+  animation: color-bends-drift 20s linear infinite;
+}
+@keyframes color-bends-drift {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 220% 0%;
+  }
+}
+/* En celular, las secciones de abajo del hero no se calculan ni se pintan
+   hasta que están por verse: la página tiene ~1.400 elementos y el
+   navegador los ubicaba todos antes del primer pintado. Solo en celular
+   porque en desktop el pin de PhoneDetail y el parallax miden posiciones
+   de toda la página. "auto" en el tamaño recuerda el alto real una vez
+   que la sección se mostró. */
+@media (max-width: 1023px) {
+  main > section:not(#inicio),
+  body footer {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 1000px;
+  }
+}
+
+/* En móvil las bandas quedan quietas, igual que el aurora: animar
+   background-position obliga a repintar y desenfocar todo el fondo del hero
+   en cada frame (varios megapíxeles en pantallas de celular). */
+@media (max-width: 1023px) {
+  .color-bends {
+    animation: none;
+    filter: blur(30px);
+  }
+}
