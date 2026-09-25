@@ -6,10 +6,10 @@ import { HeroSides, HeroWordmark } from "./HeroCopy";
 
 /** Foto recortada de Fran y Tomi y puntos de foco (0..1 de la imagen). */
 export const DUO = {
-  src: "/media/hero/duo.webp",
-  width: 960,
-  height: 982,
-  focus: { camara: [0.589, 0.418], cartel: [0.242, 0.387] } as Record<"camara" | "cartel", [number, number]>,
+  src: "/media/hero/avatares.webp",
+  width: 817,
+  height: 896,
+  focus: { camara: [0.909, 0.251], cartel: [0.359, 0.502] } as Record<"camara" | "cartel", [number, number]>,
 };
 
 export interface HeroStageHandle {
@@ -108,10 +108,10 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
             src={DUO.src}
             width={DUO.width}
             height={DUO.height}
-            alt="Fran y Tomi de Somos iPhone NQN: Tomi con un cartel que dice Aceptamos cuotas y Fran mostrando un iPhone"
+            alt="Avatares 3D de Tomi y Fran de Somos iPhone NQN: Tomi con un cartel que dice Aceptamos cuotas y Fran mostrando un iPhone"
             fetchPriority="high"
             className="absolute bottom-0 left-1/2 h-full w-auto max-w-none -translate-x-1/2 select-none object-contain"
-            style={{ maskImage: "linear-gradient(to top, transparent 0%, black 12%)", WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 12%)" }}
+            style={{ maskImage: "linear-gradient(to top, transparent 0%, black 12%)", WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 12%)", filter: "drop-shadow(0 0 24px rgba(196,196,196,.28)) drop-shadow(0 0 2px rgba(255,255,255,.35))" }}
             draggable={false}
           />
         </div>
