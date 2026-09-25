@@ -1,6 +1,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { allowMotion, getMotionPrefs } from "@/anim/motion";
 import type { Layer } from "./floatingPhones";
+import { ColorBends } from "@/components/ColorBends";
+import { HeroCopy } from "./HeroCopy";
 
 /** Foto recortada de Fran y Tomi y puntos de foco (0..1 de la imagen). */
 export const DUO = {
@@ -27,25 +29,38 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
   const introRef = useRef<HTMLDivElement>(null);
   const layers = useRef<Layer[]>([]);
 
+  // Foco medido con el escenario sin zoom (se recalcula al cambiar el tamaño).
+  const origin = useRef<Record<"camara" | "cartel", [number, number]> | null>(null);
+  const measure = () => {
+    const zoom = zoomRef.current, img = imgRef.current;
+    if (!zoom || !img) return;
+    const prev = zoom.style.transform;
+    zoom.style.transform = "none";
+    const zr = zoom.getBoundingClientRect(), ir = img.getBoundingClientRect();
+    zoom.style.transform = prev;
+    const at = (f: [number, number]): [number, number] => [ir.left - zr.left + f[0] * ir.width, ir.top - zr.top + f[1] * ir.height];
+    origin.current = { camara: at(DUO.focus.camara), cartel: at(DUO.focus.cartel) };
+  };
+
   useImperativeHandle(ref, () => ({
     setZoom(focus, z, intro) {
-      const zoom = zoomRef.current, img = imgRef.current;
-      if (!zoom || !img) return;
-      const [fx, fy] = DUO.focus[focus];
-      // posición del foco dentro del escenario (offset* ignora transforms, y la
-      // imagen está centrada con translateX(-50%): se lo descontamos)
-      const ox = img.offsetLeft - img.offsetWidth / 2 + fx * img.offsetWidth;
-      const oy = img.offsetTop + fy * img.offsetHeight;
+      const zoom = zoomRef.current;
+      if (!zoom) return;
+      if (!origin.current) measure();
+      if (!origin.current) return;
+      const [ox, oy] = origin.current[focus];
       const e = z * z * (3 - 2 * z);
       const s = Math.pow(MAX_SCALE, e);
       // el foco viaja al centro de la pantalla mientras se acerca
-      const cx = zoom.offsetWidth / 2, cy = zoom.offsetHeight / 2;
-      const tx = (cx - ox) * e, ty = (cy - oy) * e;
+      const tx = (zoom.offsetWidth / 2 - ox) * e, ty = (zoom.offsetHeight / 2 - oy) * e;
       zoom.style.transformOrigin = `${ox}px ${oy}px`;
       zoom.style.transform = z > 0 ? `translate(${tx}px, ${ty}px) scale(${s})` : "none";
       const black = Math.min(1, Math.max(0, (z - 0.72) / 0.28));
       if (blackRef.current) blackRef.current.style.opacity = String(black);
-      if (introRef.current) introRef.current.style.opacity = String(Math.max(0, 1 - intro * 3));
+      if (introRef.current) {
+        introRef.current.style.opacity = String(Math.max(0, 1 - intro * 2.5));
+        introRef.current.style.pointerEvents = intro > 0.2 ? "none" : "auto";
+      }
       for (const l of layers.current) l.setActive(black < 1);
     },
   }));
@@ -67,55 +82,45 @@ export const HeroStage = forwardRef<HeroStageHandle>(function HeroStage(_, ref) 
       for (const l of layers.current) l.setPointer(x, y);
     };
     window.addEventListener("pointermove", onMove, { passive: true });
+    const onResize = () => { origin.current = null; };
+    window.addEventListener("resize", onResize);
     return () => {
       cancelled = true;
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("resize", onResize);
       layers.current.forEach((l) => l.dispose());
       layers.current = [];
     };
   }, []);
 
   return (
-    <div className="relative h-dvh w-full overflow-hidden bg-[#05060a]">
+    <div className="relative h-dvh w-full overflow-hidden bg-ink-950">
       <div ref={zoomRef} className="absolute inset-0 will-change-transform">
-        {/* Fondo futurista */}
-        <div className="absolute inset-0" style={{
-          background:
-            "radial-gradient(60% 50% at 50% 55%, rgba(46,123,255,.28), transparent 70%)," +
-            "radial-gradient(40% 35% at 15% 20%, rgba(138,180,255,.14), transparent 70%)," +
-            "radial-gradient(40% 35% at 85% 25%, rgba(196,196,196,.10), transparent 70%)," +
-            "linear-gradient(180deg,#05060a 0%,#0a0d16 60%,#05060a 100%)",
-        }} />
-        <div className="absolute inset-x-0 bottom-0 h-[45%] opacity-40" style={{
-          backgroundImage:
-            "linear-gradient(rgba(138,180,255,.25) 1px, transparent 1px), linear-gradient(90deg, rgba(138,180,255,.25) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-          transform: "perspective(600px) rotateX(62deg)",
-          transformOrigin: "bottom",
-          maskImage: "linear-gradient(to top, black, transparent)",
-          WebkitMaskImage: "linear-gradient(to top, black, transparent)",
-        }} />
+        {/* Fondo: los colores en movimiento del home anterior */}
+        <ColorBends />
         <canvas ref={backRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
-        {/* Halo detrás de ellos */}
-        <div className="absolute bottom-0 left-1/2 h-[70%] w-[80%] -translate-x-1/2 rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, rgba(46,123,255,.35), transparent)" }} />
-        <img
-          ref={imgRef}
-          src={DUO.src}
-          width={DUO.width}
-          height={DUO.height}
-          alt="Fran y Tomi de Somos iPhone NQN: Tomi con un cartel que dice Aceptamos cuotas y Fran mostrando un iPhone"
-          fetchPriority="high"
-          className="absolute bottom-0 left-1/2 w-[min(118vw,calc(86svh*0.978))] max-w-none -translate-x-1/2 select-none"
-          style={{ maskImage: "linear-gradient(to top, transparent 0%, black 14%)", WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 14%)" }}
-          draggable={false}
-        />
+        {/* Fran y Tomi: a la derecha en PC, arriba a la derecha en celular */}
+        <div className="absolute right-0 top-[5svh] h-[44svh] w-[64%] lg:bottom-0 lg:top-auto lg:h-[92svh] lg:w-1/2">
+          <div className="absolute bottom-[8%] left-1/2 h-[70%] w-[90%] -translate-x-1/2 rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, rgba(196,196,196,.16), transparent)" }} />
+          <img
+            ref={imgRef}
+            src={DUO.src}
+            width={DUO.width}
+            height={DUO.height}
+            alt="Fran y Tomi de Somos iPhone NQN: Tomi con un cartel que dice Aceptamos cuotas y Fran mostrando un iPhone"
+            fetchPriority="high"
+            className="absolute bottom-0 left-1/2 h-full w-auto max-w-none -translate-x-1/2 select-none object-contain"
+            style={{ maskImage: "linear-gradient(to top, transparent 0%, black 12%)", WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 12%)" }}
+            draggable={false}
+          />
+        </div>
         <canvas ref={frontRef} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true" />
       </div>
-      <div ref={introRef} className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-center pt-[max(1.5rem,env(safe-area-inset-top))] text-center">
-        <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">somos iphone nqn</h1>
-        <p className="mt-2 text-sm text-[var(--text-secondary)] md:text-base">iPhones nuevos y usados en Neuquén · Deslizá ↓</p>
+      {/* Texto del home: arriba en celular, columna izquierda en PC */}
+      <div ref={introRef} className="absolute inset-y-0 left-0 z-10 w-full lg:w-1/2">
+        <HeroCopy />
       </div>
-      <div ref={blackRef} className="pointer-events-none absolute inset-0 bg-[var(--bg-main)] opacity-0" />
+      <div ref={blackRef} className="pointer-events-none absolute inset-0 z-20 bg-[var(--bg-main)] opacity-0" />
     </div>
   );
 });
