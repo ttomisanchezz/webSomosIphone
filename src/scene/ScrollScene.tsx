@@ -20,17 +20,26 @@ export interface ScrollSceneProps {
 }
 
 const LAST = 60;
+const HANDOFF = 10; // frame del video viejo donde se funde la portada nueva
+
 const A: Step[] = [
-  { seq: "camara", from: 0, to: 0 }, // un momento quieto en la portada
-  { seq: "camara", from: 0, to: 30 },
-  { seq: "camara", from: 30, to: LAST },
+  { kind: "still", focus: "camara", zoom: [1, 1] }, // un momento quieto en la portada
+  { kind: "still", focus: "camara", zoom: [1, 1.8], fadeTo: { seq: "camara", frame: HANDOFF } },
+  { kind: "frames", seq: "camara", from: HANDOFF, to: 35 },
+  { kind: "frames", seq: "camara", from: 35, to: LAST },
 ];
 
 const B: Step[] = [
-  { seq: "camara", from: LAST, to: 0 },
-  { seq: "cartel", from: 0, to: LAST },
+  { kind: "frames", seq: "camara", from: LAST, to: HANDOFF },
+  { kind: "still", focus: "camara", zoom: [1.8, 1], fadeFrom: { seq: "camara", frame: HANDOFF } },
+  { kind: "still", focus: "cartel", zoom: [1, 1.8], fadeTo: { seq: "cartel", frame: HANDOFF } },
+  { kind: "frames", seq: "cartel", from: HANDOFF, to: LAST },
 ];
-const C: Step[] = [{ seq: "cartel", from: LAST, to: 0 }];
+
+const C: Step[] = [
+  { kind: "frames", seq: "cartel", from: LAST, to: HANDOFF },
+  { kind: "still", focus: "cartel", zoom: [1.8, 1], fadeFrom: { seq: "cartel", frame: HANDOFF } },
+];
 
 function Intro() {
   return (
