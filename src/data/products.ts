@@ -21,7 +21,7 @@ export interface PhoneColor {
 export interface BatteryOption {
   /** Condición de batería 0-100 (se anima en la card) */
   health: number;
-  /** Precio de referencia en ARS. Sin valor = "a consultar". */
+  /** Precio de contado en ARS. Sin valor = "a consultar". */
   price?: number;
 }
 
@@ -124,16 +124,17 @@ const C_17: PhoneColor[] = [
   { name: "Lavanda", hex: "#c3bcd8" },
 ];
 
-// La capacidad de los sellados va "A consultar" hasta confirmar a qué
-// capacidad corresponde cada precio: listar 256GB · 512GB · 1TB con un solo
-// precio daba a entender que salen todas lo mismo.
+// Cada precio corresponde a UNA capacidad: la base de cada modelo (confirmado
+// por Tomás, sep 2026). Usados: 128GB, salvo 16 y 15 Pro Max (256GB,
+// no vienen en 128). Sellados:
+// 18 Pro/Pro Max y 17 en 256GB; 16 y 15 en 128GB. Otras capacidades, a consultar.
 export const NEW_IPHONES: iPhoneProduct[] = [
   {
     id: "18-pro-max",
     model: "iPhone 18 Pro Max",
     tagline: "Lo último de Apple",
     condition: "nuevo",
-    capacity: "A consultar",
+    capacity: "256GB",
     options: [{ health: 100, price: 2970000 }],
     badge: "Sellado",
     // No hay .glb del 18 Pro: el 17 Pro Max es el más parecido (mismo diseño).
@@ -146,7 +147,7 @@ export const NEW_IPHONES: iPhoneProduct[] = [
     model: "iPhone 18 Pro",
     tagline: 'Lo último, en 6.3"',
     condition: "nuevo",
-    capacity: "A consultar",
+    capacity: "256GB",
     options: [{ health: 100, price: 2850000 }],
     badge: "Sellado",
     model3d: MODELS.iphone17ProMax,
@@ -158,7 +159,7 @@ export const NEW_IPHONES: iPhoneProduct[] = [
     model: "iPhone 17",
     tagline: "Lo último sin pagar el Pro",
     condition: "nuevo",
-    capacity: "A consultar",
+    capacity: "256GB",
     options: [{ health: 100, price: 1650000 }],
     badge: "Sellado",
     model3d: MODELS.iphone17,
@@ -170,7 +171,7 @@ export const NEW_IPHONES: iPhoneProduct[] = [
     model: "iPhone 16",
     tagline: "Con Control de Cámara",
     condition: "nuevo",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [{ health: 100, price: 1450000 }],
     badge: "Sellado",
     model3d: MODELS.iphone16,
@@ -182,7 +183,7 @@ export const NEW_IPHONES: iPhoneProduct[] = [
     model: "iPhone 15",
     tagline: "USB-C y Dynamic Island",
     condition: "nuevo",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [{ health: 100, price: 1350000 }],
     badge: "Sellado",
     model3d: MODELS.iphone15,
@@ -199,7 +200,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 16 Pro Max",
     tagline: "Consultar disponibilidad",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "256GB",
     options: [{ health: 80, price: 1480000 }],
     model3d: MODELS.iphone16Pro,
     colors: C_16_PRO,
@@ -210,7 +211,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 16 Pro",
     tagline: "Titanio, tope de la línea 16",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [{ health: 90, price: 1210000 }],
     model3d: MODELS.iphone16Pro,
     colors: C_16_PRO,
@@ -221,7 +222,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 16",
     tagline: "Consultar disponibilidad",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [{ health: 85, price: 1030000 }],
     model3d: MODELS.iphone16,
     colors: C_16,
@@ -232,7 +233,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 15 Pro Max",
     tagline: "Consultar disponibilidad",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "256GB",
     options: [{ health: 85, price: 1190000 }],
     model3d: MODELS.iphone15ProMax,
     colors: C_15_PRO,
@@ -243,7 +244,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 15 Pro",
     tagline: "Titanio en tamaño justo",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [
       { health: 100, price: 989000 },
       { health: 85, price: 920000 },
@@ -257,7 +258,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 15",
     tagline: "USB-C y Dynamic Island",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [
       { health: 100, price: 795000 },
       { health: 85, price: 740000 },
@@ -271,7 +272,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 14 Pro",
     tagline: "Dynamic Island y 120Hz",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [
       { health: 100, price: 835000 },
       { health: 80, price: 770000 },
@@ -285,7 +286,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 14",
     tagline: "El equilibrado",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [
       { health: 100, price: 595000 },
       { health: 85, price: 540000 },
@@ -299,7 +300,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 13 Pro Max",
     tagline: "Consultar disponibilidad",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [{ health: 85 }],
     model3d: MODELS.iphone13ProMax,
     colors: C_13_PRO,
@@ -310,7 +311,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 13 Pro",
     tagline: "Pro accesible",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [
       { health: 100, price: 700000 },
       { health: 90, price: 680000 },
@@ -324,7 +325,7 @@ export const USED_IPHONES: iPhoneProduct[] = [
     model: "iPhone 13",
     tagline: "Primer iPhone o cambio económico",
     condition: "usado",
-    capacity: "A consultar",
+    capacity: "128GB",
     options: [
       { health: 100, price: 535000 },
       { health: 85, price: 499000 },

@@ -127,7 +127,7 @@ export function ProductCards() {
 
         <Reveal>
           <p className="mt-8 text-center text-xs text-slate-500">
-            Precios de referencia en pesos, actualizados al{" "}
+            Precios de contado en pesos, actualizados al{" "}
             {PRECIOS_ACTUALIZADOS} · Confirmá stock, color y condición por
             WhatsApp antes de coordinar.
           </p>
@@ -268,11 +268,11 @@ function ProductCard({
           )}
           {hasPrice ? (
             <div className="text-xs font-medium text-accent-300/90">
-              Precio de referencia
+              Precio de contado
             </div>
           ) : null}
           <div className="text-xs text-slate-500">
-            {isUsed ? "Usado · garantía local" : "Sellado · garantía oficial"}
+            {isUsed ? "Usado · garantía 3 meses" : "Sellado · garantía 1 año"}
           </div>
         </div>
 

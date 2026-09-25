@@ -138,8 +138,8 @@ export const benefits: Benefit[] = [
   },
   {
     icon: "lock",
-    title: "Garantía local 3 meses",
-    text: "Los usados incluyen garantía local. Los nuevos, garantía oficial de 1 año.",
+    title: "Garantía nuestra",
+    text: "Usados, 3 meses. Sellados, 1 año. La cubrimos nosotros: fallas de funcionamiento y de sistema. No cubre golpes, caídas ni roturas.",
   },
   {
     icon: "truck",
@@ -232,7 +232,7 @@ export const faqItems: FaqItem[] = [
   },
   {
     q: "¿Qué garantía tienen los equipos?",
-    a: "Los usados tienen garantía local de 3 meses. Los nuevos sellados, garantía oficial de 1 año.",
+    a: "La garantía la cubrimos nosotros: 3 meses en los usados y 1 año en los sellados. Cubre cualquier falla de funcionamiento o de sistema. No cubre golpes, caídas ni roturas.",
   },
   {
     q: "¿Cómo revisan los usados?",

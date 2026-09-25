@@ -15,7 +15,7 @@ export function Comparison() {
                 Compará modelos antes de elegir
               </>
             }
-            description="Precios de referencia de equipos usados sobre el stock actual. Confirmá disponibilidad y capacidades por WhatsApp."
+            description="Precios de contado de equipos usados sobre el stock actual. Confirmá disponibilidad y capacidades por WhatsApp."
           />
         </Reveal>
 
